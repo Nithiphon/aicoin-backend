@@ -5,6 +5,8 @@ import numpy as np
 from ultralytics import YOLO
 import os
 import base64
+import torch
+from ultralytics.nn.tasks import DetectionModel
 
 # สร้าง Flask App
 app = Flask(__name__)
@@ -26,6 +28,9 @@ print("🔄 กำลังโหลดโมเดล YOLO...")
 MODEL_PATH = 'model-coin.pt'
 
 try:
+    # แก้ปัญหา PyTorch 2.4+ weights_only warning
+    torch.serialization.add_safe_globals([DetectionModel])
+    
     model = YOLO(MODEL_PATH)
     print("✅ โหลดโมเดลสำเร็จ!")
     print(f"📦 ไฟล์โมเดล: {MODEL_PATH}")
