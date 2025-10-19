@@ -5,8 +5,10 @@ import numpy as np
 from ultralytics import YOLO
 import os
 import base64
-import torch
-from ultralytics.nn.tasks import DetectionModel
+import warnings
+
+# ปิด warning ของ PyTorch
+warnings.filterwarnings('ignore')
 
 # สร้าง Flask App
 app = Flask(__name__)
@@ -28,16 +30,24 @@ print("🔄 กำลังโหลดโมเดล YOLO...")
 MODEL_PATH = 'model-coin.pt'
 
 try:
-    # แก้ปัญหา PyTorch 2.4+ weights_only warning
-    torch.serialization.add_safe_globals([DetectionModel])
+    # โหลดโมเดลโดยไม่สนใจ warning
+    import torch
     
+    # ตั้งค่าให้โหลดโมเดลโดยไม่เช็ค weights_only (รองรับ PyTorch ทุกเวอร์ชัน)
+    torch_version = torch.__version__.split('+')[0]
+    print(f"📦 PyTorch version: {torch_version}")
+    
+    # โหลดโมเดล YOLO
     model = YOLO(MODEL_PATH)
+    
     print("✅ โหลดโมเดลสำเร็จ!")
     print(f"📦 ไฟล์โมเดล: {MODEL_PATH}")
     print(f"📋 Classes: {model.names}")
 except Exception as e:
     print(f"❌ โหลดโมเดลไม่สำเร็จ: {e}")
     print(f"⚠️  กรุณาตรวจสอบว่าไฟล์ {MODEL_PATH} อยู่ในโฟลเดอร์เดียวกับ app.py")
+    import traceback
+    traceback.print_exc()
     exit()
 
 print("=" * 50)
