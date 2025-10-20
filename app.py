@@ -13,14 +13,23 @@ warnings.filterwarnings('ignore')
 # สร้าง Flask App
 app = Flask(__name__)
 
-# แก้ CORS ให้อนุญาตทุก Origin
+# แก้ CORS ให้อนุญาตทุก Origin (รวม Vercel)
 CORS(app, resources={
     r"/*": {
         "origins": "*",
         "methods": ["GET", "POST", "OPTIONS"],
-        "allow_headers": ["Content-Type"]
+        "allow_headers": ["Content-Type"],
+        "supports_credentials": True
     }
 })
+
+# เพิ่ม CORS headers สำหรับทุก response
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS')
+    return response
 
 # โหลดโมเดล YOLO
 print("=" * 50)
@@ -60,6 +69,7 @@ def home():
     <p>✅ Server กำลังทำงาน</p>
     <p>📍 ส่งรูปมาที่: POST /detect</p>
     <p>🎯 รองรับเหรียญ: 1, 5, 10 บาท</p>
+    <p>🌐 CORS: Enabled for all origins</p>
     """
 
 # Route สำหรับ OPTIONS (CORS preflight)
@@ -192,6 +202,7 @@ if __name__ == '__main__':
     print("🚀 เริ่มต้น Coin Detection Server")
     print(f"📍 PORT: {port}")
     print("🪙 รองรับเหรียญ: 1, 5, 10 บาท")
+    print("🌐 CORS: Enabled for all origins")
     print("🌐 กด Ctrl+C เพื่อหยุด Server")
     print("🚀" * 25 + "\n")
     
